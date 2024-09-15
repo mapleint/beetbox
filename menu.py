@@ -1,4 +1,6 @@
 import pygame
+from display import RESOLUTION_X, RESOLUTION_Y, display
+
 
 pygame.init()
 pygame.mixer.init()
@@ -6,13 +8,6 @@ pygame.font.init()
 
 text_color = (234, 212, 252) 
 background_color = (234, 212, 252)
-
-RESOLUTION = (1920, 1080)
-RESOLUTION_X, RESOLUTION_Y = RESOLUTION
-
-display = pygame.display.set_mode(RESOLUTION)
-pygame.display.set_caption(f'Beetbox@{RESOLUTION_X}x{RESOLUTION_Y}')
-
 
 class Text:
     def __init__(self, text, color, pos = (.5, .5), center = False, size = 32):
@@ -60,10 +55,31 @@ class Menu:
 clock = pygame.time.Clock()
 pygame.display.flip()
 
-main_menu = Menu([Option(Text("quit", pygame.color.THECOLORS["blue"]), quit)])
+def change_menu(menu):
+    global selected
+    selected = menu
+
+COLORS = pygame.color.THECOLORS
+BLUE = COLORS["blue"]
+RED = COLORS["red"]
+GREEN = COLORS["green"]
+
+main_menu : Menu
+
+songs_menu = Menu([
+    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+
+])
+
+main_menu = Menu([
+    Option(Text("SONGS", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : change_menu(songs_menu)),
+    Option(Text("QUIT", pygame.color.THECOLORS["blue"], (.5, .55), center=True), quit),
+])
+
+
 selected = main_menu
 
-title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .2), True, 92)
+title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
 
 def quit():
     pygame.quit()
@@ -71,13 +87,14 @@ def quit():
 
 while True:
     display.fill(background_color)
-    title.render()
+    if selected is main_menu:
+        title.render()
     selected.render()
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit()
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            main_menu.click(event.pos[0], event.pos[1])
+            selected.click(event.pos[0], event.pos[1])
 
     clock.tick(60)
