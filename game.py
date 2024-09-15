@@ -172,6 +172,7 @@ class Game:
         fc = 0
         cooldown = 90
         min_dt = 1 / self.tick_rate
+        tick_stopper = 0
 
         while(1):
             # TIME FPS
@@ -184,10 +185,21 @@ class Game:
 
             self.tick()
 
+            if len(rhythm.track) > 0:
+                if (1.0*total_ticks)/self.tick_rate > rhythm.track[0][1]:
+                    self.notes.append(Beat(self, rhythm.track[0][0], self.speed, self.tick_rate))
+            else:
+                tick_stopper += 1
+            
+            if tick_stopper/self.tick_rate > 11:
+                break
+
             delta = time.time() - now
             if min_dt - delta > 0:
                 time.sleep(min_dt - delta)
 
+            print(total_ticks)
+            total_ticks += 1
         pass
 
     def menu(self):
