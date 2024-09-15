@@ -1,6 +1,7 @@
 import pygame
 from pvrecorder import PvRecorder
 from detect_peaks import detect_peaks
+from rhythm import Rhythm
 
 pygame.mixer.init()
 
@@ -50,17 +51,29 @@ track_colors : list[tuple[int, int, int]] = [
 track_pos : list[int] = []
 
 FALLOFF = 1/10
+
+width, height = RESOLUTION_X, RESOLUTION_Y
+XBEGIN = RESOLUTION_X * FALLOFF
+XEND = RESOLUTION_X
+num_v_lines = 10
+
+line_v_spacing = (XEND - XBEGIN)/(num_v_lines-1)
+
 def board_render():
-    # Set the dimensions of the image
-    width, height = RESOLUTION_X, RESOLUTION_Y
-    XBEGIN = RESOLUTION_X * FALLOFF
-    XEND = RESOLUTION_X
+    # Set the dimensions of the image 
 
     # Define the color (black in this case)
     black = (0, 0, 0,)  # RGBA format
+    gray1 = (90, 90, 90,)
+    gray2 = (150, 150, 150,)
+
+    width0 = 5
+    width1 = 7
+    width2 = 3
+    width3 = 1
 
     # Calculate the spacing between lines
-    line_spacing = height // 20
+    line_spacing = height // 15
 
     # Draw four horizontal lines on the surface
     num_h_lines = 5
@@ -68,16 +81,29 @@ def board_render():
     for i in range(0, num_h_lines):
         y_value = (i - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
         track_pos.append(y_value + line_spacing / 2)
-        pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value))
+        pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value), width0)
     
     YBEGIN = (0 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
     YEND = (num_h_lines-1 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
-    num_v_lines = 10
 
     for i in range(0, num_v_lines):
         line_spacing = (XEND - XBEGIN)/(num_v_lines-1)
         x_value = XBEGIN + i*line_spacing
-        pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND))
+        pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND), width1)
+
+    num_v2_lines = num_v_lines - 1
+    
+    for i in range(0, num_v2_lines):
+        line_spacing = (XEND - XBEGIN) / (num_v_lines-1)
+        x_value = XBEGIN + 1/2*line_spacing + i*line_spacing
+        pygame.draw.line(display, gray1, (x_value, YBEGIN), (x_value, YEND), width2)
+    
+    num_v3_lines = 2*num_v2_lines
+
+    for i in range(0, num_v3_lines):
+        line_spacing = ((XEND - XBEGIN) / (num_v_lines-1))/2
+        x_value = XBEGIN + 1/2*line_spacing + i*line_spacing
+        pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
     
 class Line_input:
     size = RESOLUTION_Y / 50
@@ -109,14 +135,24 @@ class Line_input:
             print('missed')
 
 
+cooldown = 90
+tick_rate=60
+min_dt = 1 / tick_rate
+fc = 0
+
+speed = 2 #line speed per second
+
 class Beat:
     size = RESOLUTION_Y / 50
-    def __init__(self, track : int, time : int = 2):
+    def __init__(self, track : int):
         # in game coords are not resolution based
         self.track = track
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
-        self.dx = - 1 / (time * 600)
+        pixel_speed = speed * line_v_spacing #pixel speed per second
+        window_speed = pixel_speed / RESOLUTION_X #window speed per second
+        window_speed_tick = window_speed / tick_rate #window speed per tick
+        self.dx = - window_speed_tick
         self.color = track_colors[track]
         self.muted_color = [int(amp * .9) for amp in self.color]
         self.size = Beat.size
@@ -147,7 +183,7 @@ pygame.display.flip()
 
 lanes = [Line_input(i) for i in range(4)]
 
-notes = [Beat(i, .3) for i in range(4)]
+notes = [Beat(i) for i in range(4)]
 
 import time
 
@@ -198,6 +234,15 @@ texts : list[floating_text] = []
 
 def draw_text(jkk):
     texts.append(floating_text("Perfect!", RED, 1, 100))
+    
+
+notes = [Beat(i) for i in range(4)]
+
+import time
+
+previous = time.time()
+
+rhythm1 = Rhythm(60, 16, [(0,),(),(),(),(0,),(),(1,),(),(0,),(),(),(),(0,),(),(1,),(),])
 
 try:
     recorder.start()
