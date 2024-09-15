@@ -1,5 +1,5 @@
 import pygame
-from display import  display
+from display import display
 from render import Text
 
 pygame.init()
@@ -8,6 +8,9 @@ pygame.font.init()
 
 text_color = (234, 212, 252) 
 background_color = (234, 212, 252)
+
+import game
+input_method = game.INPUT(None, None)
 
 
 class Option:
@@ -47,7 +50,6 @@ BLUE = COLORS["blue"]
 RED = COLORS["red"]
 GREEN = COLORS["green"]
 
-main_menu : Menu
 
 last_rhythm = None
 last_score = 0
@@ -59,9 +61,21 @@ def nothing():
 
 Option(game_over_text, nothing),
 
-import game
+title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
+
+main_menu : Menu
+songs_menu = Menu([
+    Option(Text("rhytm1", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(game.rhythm1)),
+    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+])
+game_over = Menu([
+    Option(game_over_text, nothing),
+    Option(Text("RETRY", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(last_rhythm)),
+    Option(Text("MAIN MENU", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+])
+
 def start_game(rhythm):
-    level = game.Game()
+    level = game.Game(input_method)
     level.start_game(rhythm)
     global last_score, last_rhythm
     last_score = level.score
@@ -72,43 +86,48 @@ def start_game(rhythm):
         game_over_text.update_text("GAME OVER!")
     change_menu(game_over)
 
-songs_menu = Menu([
-    Option(Text("rhytm1", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(game.rhythm1)),
-    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
-])
+selected = game_over
+main_menu = Menu([])
 
-main_menu = Menu([
-    Option(Text("SONGS", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : change_menu(songs_menu)),
-    Option(Text("QUIT", pygame.color.THECOLORS["blue"], (.5, .55), center=True), quit),
-])
+import shared
+import time
+def menu(status, inp, lock):
+    input_method.input = inp
+    input_method.lock = lock
 
- 
+    calibration_text = Text("Calibrate Microphone (beatbox into your microphone)", (255, 255, 255), center=True)
+    while status.value == shared.CALIBRATION:
+        calibration_text.render()
+        pygame.display.update()
+        time.sleep(1/30)
 
-game_over = Menu([
-    Option(game_over_text, nothing),
-    Option(Text("RETRY", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(last_rhythm)),
-    Option(Text("MAIN MENU", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
-])
+    def quit():
+        with lock:
+            status.value = shared.QUIT
+        pygame.quit()
+        exit(0)
 
-selected = main_menu
+    global main_menu
+    main_menu = Menu([
+        Option(Text("SONGS", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : change_menu(songs_menu)),
+        Option(Text("QUIT", pygame.color.THECOLORS["blue"], (.5, .55), center=True), quit),
+    ])
+    global selected
+    selected = main_menu
 
-title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
+    while status != shared.QUIT:
+        display.fill(background_color)
+        if selected is main_menu:
+            title.render()
+        selected.render()
+        #print("attempting update")
+        pygame.display.update()
+        #print("attempting event loop")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                selected.click(event.pos[0], event.pos[1])
 
-
-def quit():
-    pygame.quit()
-    exit(0)
-
-while True:
-    display.fill(background_color)
-    if selected is main_menu:
-        title.render()
-    selected.render()
-    pygame.display.update()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            selected.click(event.pos[0], event.pos[1])
-
-    clock.tick(60)
+        clock.tick(30)
+    

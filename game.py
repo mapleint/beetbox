@@ -46,9 +46,24 @@ bad_words = [
     "u missed",
     "rethink ur life",
 ]
+import shared
+class INPUT:
+    def __init__(self, inp, lock):
+        self.input = inp
+        self.lock = lock
+
+    def get_input(self):
+        ret = None
+        with self.lock:
+            if self.input.value == shared.NONE:
+                return ret
+            ret = self.input.value
+            self.input.value = shared.NONE
+        return ret
 
 class Game:
-    def __init__(self):
+    def __init__(self, input_method : INPUT):
+        self.input_method : INPUT = input_method
         self.tick_rate = 60
         self.speed = 2.0 #beats per second
 
@@ -209,17 +224,13 @@ class Game:
 
         self.notes = [note for note in self.notes if note.alive]
         pygame.display.update()
+        i = self.input_method.get_input()
+        if i is not None:
+            score_delta = self.lanes[i].pressed(self)
+            self.add_score(score_delta)
+            self.update_streak(score_delta)
 
         for event in pygame.event.get():
-            # INPUT HANDLING
-            if event.type == pygame.KEYDOWN:
-                keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
-                for i, key in enumerate(keys):
-                    if event.key == key:
-                        score_delta = self.lanes[i].pressed(self)
-                        self.add_score(score_delta)
-                        self.update_streak(score_delta)
-                
             if event.type == pygame.QUIT:
                 print("QUITTING")
                 pygame.quit()
