@@ -13,7 +13,7 @@ def game_loop():
 class Game:
     def __init__(self):
         self.tick_rate = 60
-        self.speed = 1.0 #beats per second
+        self.speed = 2.0 #beats per second
 
         pygame.mixer.init()
 
@@ -63,7 +63,7 @@ class Game:
             self.YELLOW,
         ]
  
-        self.notes = [Beat(self, i, self.speed, self.tick_rate) for i in range(4)] 
+        self.notes = [] 
         self.lanes = [Line_input(self, i) for i in range(4)]
 
     def board_render(self):
@@ -110,50 +110,42 @@ class Game:
             pygame.draw.line(self.display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
  
     def tick(self):
-        try:
-            self.recorder.start()
+        self.recorder.start()
+        # RENDER
+        self.display.fill(self.background_colour)
+        self.board_render()
 
-            while True:
-                # RENDER
-                self.display.fill(self.background_colour)
-                self.board_render()
+        for text in self.texts:
+            text.update()
+            text.render(self)
+        text = [text for text in self.texts if text.alive]
 
-                for text in self.texts:
-                    text.update()
-                    text.render(self)
-                text = [text for text in self.texts if text.alive]
+        # INPUT AND RENDERING
+        for lane in self.lanes:
+            lane.update()
+            lane.render(self)
 
-                # INPUT AND RENDERING
-                for lane in self.lanes:
-                    lane.update()
-                    lane.render(self)
+        # NOTE LOGIC AND RENDERING
+        for note in self.notes:
+            note.update(self)
+            note.render(self)
 
-                # NOTE LOGIC AND RENDERING
-                for note in self.notes:
-                    note.update(self)
-                    note.render(self)
+        self.notes = [note for note in self.notes if note.alive]
+        pygame.display.update()
 
-                pygame.display.update()
+        for event in pygame.event.get():
+            # INPUT HANDLING
+            if event.type == pygame.KEYDOWN:
+                keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
+                for i, key in enumerate(keys):
+                    if event.key == key:
+                        self.lanes[i].pressed(self)
+                
+            if event.type == pygame.QUIT:
+                print("QUITTING")
+                pygame.quit()
+                exit()
 
-                for event in pygame.event.get():
-                    # INPUT HANDLING
-                    if event.type == pygame.KEYDOWN:
-                        keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
-                        for i, key in enumerate(keys):
-                            if event.key == key:
-                                self.lanes[i].pressed(self)
-                        
-                    
-                    if event.type == pygame.QUIT:
-                        self.recorder.stop()
-                        pygame.quit()
-                        exit()
-
-        except KeyboardInterrupt:
-            self.recorder.stop()
-        finally:
-            self.recorder.delete()
-  
     def draw_text(self, jkk):
         self.texts.append(floating_text("Perfect!", self.RED, 1, 100))
 
@@ -174,7 +166,7 @@ class Game:
         min_dt = 1 / self.tick_rate
         tick_stopper = 0
 
-        while(1):
+        while True:
             # TIME FPS
             fc += 1
             now = time.time()
@@ -186,28 +178,27 @@ class Game:
             self.tick()
 
             if len(rhythm.track) > 0:
-                if (1.0*total_ticks)/self.tick_rate > rhythm.track[0][1]:
+                if ((1.0*total_ticks)/self.tick_rate)*self.speed > rhythm.track[0][1]:
                     self.notes.append(Beat(self, rhythm.track[0][0], self.speed, self.tick_rate))
+                    rhythm.track = rhythm.track[1:]
             else:
                 tick_stopper += 1
             
-            if tick_stopper/self.tick_rate > 11:
+            if tick_stopper/self.tick_rate*self.speed > 11:
                 break
 
             delta = time.time() - now
             if min_dt - delta > 0:
                 time.sleep(min_dt - delta)
 
-            print(total_ticks)
             total_ticks += 1
-        pass
 
     def menu(self):
         
         pass
 
 
-rhythm1 = Rhythm(60, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5)])
+rhythm1 = Rhythm(120, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5), (0, 4)])
 
 game = Game()
 game.start_game(rhythm1)

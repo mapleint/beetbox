@@ -62,7 +62,7 @@ class Beat:
             self.x += self.dx
         else:
             self.x += self.dx * (self.size / self.constant_size) / 1.5
-            self.size = self.constant_size * 96 / 100
+            self.size = self.size * 96 / 100
             if self.size < 0.5:
                 print("note died")
                 self.alive = False
