@@ -1,6 +1,4 @@
 import pygame
-from pvrecorder import PvRecorder
-from detect_peaks import detect_peaks
 from rhythm import Rhythm
 from display import RESOLUTION, RESOLUTION_Y, RESOLUTION_X, display
 
@@ -23,7 +21,7 @@ class Line_input:
         self.size = self.size - (self.size - self.constant_size) * .05
 
     def pressed(self, game):
-        self.size = self.size * 1.3
+        self.size = self.constant_size * 1.3
         notes_in_lane = [note for note in game.notes if note.track == self.track]
         notes_in_lane.sort(key = lambda note: abs(self.x - note.x))
         if not notes_in_lane:
@@ -33,20 +31,17 @@ class Line_input:
             print("ERROR")
             return 1
         dist = abs(note.x - self.x)*RESOLUTION_X
-        if dist < game.line_v_spacing/2:
+        if dist < game.line_v_spacing:
             note.alive = False
-            print("hit")
             if dist < game.line_v_spacing/8:
                 game.draw_text_perfect()
                 return 500
             elif dist < game.line_v_spacing/4:
                 game.draw_text_good()
                 return 250
-            elif dist < game.line_v_spacing/2:
-                game.draw_text_ok()
-                return 125
+            game.draw_text_ok()
+            return 125
         else:
-            print('missed')
             return -200
 
 class Beat:
@@ -84,8 +79,6 @@ class Beat:
         return
 
 import time
-
-import math
 
 pygame.font.init()
 comic_sans = pygame.font.SysFont('Comic Sans MS', 32)

@@ -2,7 +2,6 @@ from rhythm import Rhythm
 from detector_beep import Beat, floating_text, Line_input
 import time
 import pygame
-from pvrecorder import PvRecorder
 import time
 import random
 
@@ -20,8 +19,6 @@ class Game:
         pygame.mixer.init()
 
         self.background_colour = (234, 212, 252) 
-
-        self.recorder = PvRecorder(device_index=-1, frame_length=64)
 
         self.track_pos : list[int] = []
  
@@ -110,7 +107,6 @@ class Game:
             pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
  
     def tick(self):
-        self.recorder.start()
         # RENDER
         display.fill(self.background_colour)
         self.board_render()
@@ -210,7 +206,7 @@ class Game:
         pass
 
 
-rhythm1 = Rhythm(120, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5), (0, 4)])
+rhythm1 = Rhythm(60, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5), (0, 4)])
 
 game = Game()
 game.start_game(rhythm1)
