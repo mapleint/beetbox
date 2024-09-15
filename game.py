@@ -194,7 +194,7 @@ class Game:
             pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
 
         self.background.update()
-        self.background.render()
+        self.background.render() 
 
     def add_score(self, score):
         self.score += score * self.multiplier
@@ -281,20 +281,25 @@ class Game:
         min_dt = 1 / self.tick_rate
         tick_stopper = 0
 
+        count = 0
         while True:
             # TIME FPS
             fc += 1
             now = time.time()
             if now - previous > 1:
                 previous = now
-                #print(f"fps: {fc}")
+                print(f"fps: {fc}")
                 fc = 0
 
+            if count == rhythm.delay:
+                pygame.mixer.music.load(rhythm.music_path) 
+                pygame.mixer.music.play(-1)
             self.tick()
 
             if len(rhythm.track) > 0:
                 if ((1.0*total_ticks)/self.tick_rate)*self.speed > rhythm.track[0][1]:
-                    self.notes.append(Beat(self, rhythm.track[0][0], self.speed, self.tick_rate))
+                    create = time.time()
+                    self.notes.append(Beat(self, rhythm.track[0][0], self.speed, self.tick_rate, create))
                     rhythm.track = rhythm.track[1:]
             else:
                 tick_stopper += 1
@@ -307,8 +312,8 @@ class Game:
                 time.sleep(min_dt - delta)
 
             total_ticks += 1
+            count += 1
 
-
-# rhythm1 = Rhythm(60, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5), (0, 4)])
+rhythm1 = Rhythm(65, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5),(0,0+4),(0,1+4),(1,1.5+4), (0,2+4),(0,3+4),(1,3.5+4),(0, 4+4)], 'music/PalmTreeShade.wav', 60)
 # rhythm1 = Rhythm(120, 16, [(0,0),(1,1.5),(0,2),(1,3),(1,3.5),(0,0+4),(1,1.5+4),(0,2+4),(1,3+4),(1,3.5+4),(0,8),(1,9),(0,9.5),(1,10),(1,10.5),(0,11),(1,12),(1,13),(0,13.5),(0,14),(1,15),(0,16)])
-rhythm1 = Rhythm(60, 12, [(0,0),(2,0.5),(0,1),(2,1.5),(0,0+2),(2,0.5+2),(0,1+2),(2,1.5+2),(0,0+4),(2,0.25+4),(1,0.5+4),(2,0.75+4),(0,1+4),(2,1.25+4),(1,1.5+4),(2,1.75+4),(0,0+6),(1,0.25+6),(2,0.5+6),(1,0.75+6),(0,1+6),(1,1.25+6),(2,1.5+6),(1,1.75+6),(0,0+8),(1,0.5+8),(0,1+8),(1,1.5+8),(2,0+2+8),(1,0.5+2+8),(1,1+2+8),(0,1.5+2+8),(1,11.75),(0,12)])
+# rhythm1 = Rhythm(60, 12, [(0,0),(2,0.5),(0,1),(2,1.5),(0,0+2),(2,0.5+2),(0,1+2),(2,1.5+2),(0,0+4),(2,0.25+4),(1,0.5+4),(2,0.75+4),(0,1+4),(2,1.25+4),(1,1.5+4),(2,1.75+4),(0,0+6),(1,0.25+6),(2,0.5+6),(1,0.75+6),(0,1+6),(1,1.25+6),(2,1.5+6),(1,1.75+6),(0,0+8),(1,0.5+8),(0,1+8),(1,1.5+8),(2,0+2+8),(1,0.5+2+8),(1,1+2+8),(0,1.5+2+8),(1,11.75),(0,12)])
