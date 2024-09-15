@@ -7,15 +7,13 @@ import time
 import random
 
 
-def game_loop():
-    pass
-
 class Game:
     def __init__(self):
         self.tick_rate = 60
         self.speed = 2.0 #beats per second
 
         self.score = 0
+        self.streak = 0
 
         pygame.mixer.init()
 
@@ -33,11 +31,11 @@ class Game:
  
         self.num_v_lines = 10
         self.num_h_lines = 5
-        line_spacing = self.RESOLUTION_Y // 15
+        self.line_spacing = self.RESOLUTION_Y // 15
 
         for i in range(0, self.num_h_lines):
-            y_value = (i - self.num_h_lines / 2.0) * line_spacing + self.RESOLUTION_Y//2
-            self.track_pos.append(y_value + line_spacing / 2) 
+            y_value = (i - self.num_h_lines / 2.0) * self.line_spacing + self.RESOLUTION_Y//2
+            self.track_pos.append(y_value + self.line_spacing / 2) 
 
         self.FALLOFF = 1/10
         self.texts : list[floating_text] = []
@@ -141,15 +139,26 @@ class Game:
                 keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
                 for i, key in enumerate(keys):
                     if event.key == key:
-                        self.lanes[i].pressed(self)
+                        score_delta = self.lanes[i].pressed(self)
+                        self.score += score_delta
+                        if score_delta > 0:
+                            self.streak += 1
+                        elif score_delta < 0:
+                            if self.streak > 0:
+                                self.streak = 1
+                            self.streak -= 1
                 
             if event.type == pygame.QUIT:
                 print("QUITTING")
                 pygame.quit()
                 exit()
 
-    def draw_text(self, jkk):
+    def draw_text_perfect(self):
         self.texts.append(floating_text("Perfect!", self.RED, 1, 100))
+    def draw_text_good(self):
+        self.texts.append(floating_text("Good", self.RED, 1, 100))
+    def draw_text_ok(self):
+        self.texts.append(floating_text("ok", self.RED, 1, 100))
 
     def to_ss(self, *coords : tuple[int, int]) -> tuple[int, int]:
         return coords[0] * self.RESOLUTION_X, coords[1] * self.RESOLUTION_Y

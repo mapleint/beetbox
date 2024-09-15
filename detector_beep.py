@@ -26,11 +26,24 @@ class Line_input:
         notes_in_lane = [note for note in game.notes if note.track == self.track]
         notes_in_lane.sort(key = lambda note: abs(self.x - note.x))
         if not notes_in_lane:
-            return
+            return -200
         note = notes_in_lane[0]
-        if abs(note.x - self.x) < .03:
+        if not note.alive:
+            print("ERROR")
+            return 1
+        dist = abs(note.x - self.x)
+        if dist < game.line_spacing/2:
             note.alive = False
             print("hit")
+            if dist < game.line_spacing/8:
+                game.draw_text_perfect()
+                return 500
+            elif dist < game.line_spacing/4:
+                game.draw_text_good()
+                return 250
+            elif dist < game.line_spacing/2:
+                game.draw_text_ok()
+                return 125
         else:
             print('missed')
 
