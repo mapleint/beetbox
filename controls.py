@@ -10,7 +10,7 @@ def controls(status, inp, lock):
 
     # Load the saved model
     model_path = 'W2000d100t2e-2_tiny.h5'
-    predictor = Predictor(model_path=model_path, k=200, confidence_threshold=0.5, noise_rms=0.02)
+    predictor = Predictor(model_path=model_path, k=200, confidence_threshold=0.2, noise_rms=0.02)
 
     # Start the stream
     print("Starting stream...")
