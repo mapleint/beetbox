@@ -47,6 +47,7 @@ bad_words = [
     "rethink ur life",
 ]
 import shared
+
 class INPUT:
     def __init__(self, inp, lock):
         self.input = inp
@@ -61,6 +62,21 @@ class INPUT:
             self.input.value = shared.NONE
         return ret
 
+class KEY_INPUT(INPUT):
+    def __init__(self, inp, lock):
+        self.input = inp
+        self.lock = lock
+    def get_input(self):
+        events = pygame.event.get()
+        keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                for i, key in enumerate(keys):
+                    if event.key == key:
+                        return i
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        return None
 class Game:
     def __init__(self, input_method : INPUT):
         self.input_method : INPUT = input_method
@@ -232,10 +248,7 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("QUITTING")
-                pygame.quit()
-                exit()
-
+                exit(0)
     def draw_text_perfect(self):
         self.texts.append(floating_text("Perfect!", self.GREEN, 2, 128))
     def draw_text_good(self):
