@@ -1,6 +1,7 @@
 import pygame
 from rhythm import Rhythm
 from display import RESOLUTION, RESOLUTION_Y, RESOLUTION_X, display
+import random
 
 #inner third should be 
     
@@ -94,9 +95,9 @@ class floating_text:
         self.start = time.time()
         self.end = self.start + fade_speed
         self.alive = True
-        self.x = 200
+        self.x = 100 + random.random()*1000
         self.y = 200
-        self.surface = comic_sans.render(self.text, True, color)
+        self.surface = pygame.transform.rotate(comic_sans.render(self.text, True, color), (random.random()-0.5)*40)
         self.progress = 0
 
     def update(self):
