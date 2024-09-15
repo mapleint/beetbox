@@ -78,7 +78,7 @@ class Bird(pygame.sprite.Sprite):
         self.flapping = 0
         self.flapping_counter = 0
         # Define the rect attribute for positioning
-        self.x = 2500
+        self.x = 1900
         self.y = -50 + 340 * random.random()
         self.rect = pygame.Rect(self.x, self.y, 100, 100)
         self.speed = speed
