@@ -47,10 +47,12 @@ track_colors : list[tuple[int, int, int]] = [
     YELLOW,
 ]
 
+
+FALLOFF = 1/10
 def board_render():
     # Set the dimensions of the image
     width, height = RESOLUTION_X, RESOLUTION_Y
-    XBEGIN = RESOLUTION_X // 10
+    XBEGIN = RESOLUTION_X * FALLOFF
     XEND = RESOLUTION_X
 
     # Define the color (black in this case)
@@ -74,22 +76,26 @@ def board_render():
     
 
 class Beat:
-    size = TRACKS_HEIGHT / TRACKS * 2 / 3
+    size = 30
     def __init__(self, track : int, time : int = 2):
         # in game coords are not resolution based
-        self.y = RESOLUTION_Y / 2
-        self.x = RESOLUTION_X / 2
-        self.dx = -1 /  1000
+        self.y = 1 / 2
+        self.x = 1 + self.size / RESOLUTION_X
+        self.dx = - 1 / (time * 600)
         self.color = track_colors[track]
-
+        self.size = Beat.size
         return
 
     def render(self):
-        pygame.draw.circle(display, self.color, to_ss(self.x, self.y), Beat.size)
+        pygame.draw.circle(display, self.color, to_ss(self.x, self.y), self.size, 0)
         return
 
     def update(self):
-        self.x += self.dx
+        if self.x > FALLOFF:
+            self.x += self.dx
+        else:
+            self.x += self.dx * (self.size / Beat.size) / 1.5
+            self.size = self.size * 95 / 100
         return
 
 display.fill(background_colour)
@@ -97,19 +103,35 @@ board_render()
 
 pygame.display.flip() 
 
-note = Beat(0, 5)
+note = Beat(0, 1)
 
 notes = [note]
-
+import time
 cooldown = 90
+
+fc = 0
+previous = time.time()
 try:
-    
     recorder.start()
 
     while True:
+
+        # 
+        fc += 1
+        now = time.time()
+        if now - previous > 1:
+            previous = now
+            #print(f"fps: {fc}")
+            fc = 0
+
+        display.fill(background_colour)
+        board_render()
         for note in notes:
             note.update()
             note.render()
+
+        pygame.display.update()
+
 
         frame = recorder.read()
         history.extend(frame)
@@ -119,12 +141,9 @@ try:
         peaks = detect_peaks(history, mph=12000, mpd=256)
         if cooldown > 0:
             cooldown -= 1
-            if cooldown == 0:
-                print("ready")
         if cooldown == 0 and len(peaks) and max(peaks) >  len(history) - 64:
             #kicksound.play()
             cooldown = 60
-            print("played sound")
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
