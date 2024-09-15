@@ -1,5 +1,5 @@
 import multiprocessing as mp
-from shared import NONE, CALIBRATION 
+from shared import NONE, CALIBRATION, QUIT
 
 def run_controls(status, inp, lock):
     from controls import controls
@@ -15,13 +15,14 @@ def main():
     mutex = mp.Lock()
 
     control = mp.Process(target=run_controls, args=(status,inp, mutex))
-    #menu = mp.Process(target=run_menu, args=(status,inp, lock))
+    menu = mp.Process(target=run_menu, args=(status,inp, mutex))
 
     control.start()
-    run_menu(status, inp, mutex)
+    menu.start()
 
+    menu.join()
+    status.value = QUIT
     control.join()
-    #menu.join()
 
 if __name__ == "__main__":
     main()
