@@ -45,7 +45,7 @@ class Game:
         self.XBEGIN = RESOLUTION_X * self.FALLOFF
         self.XEND = RESOLUTION_X 
 
-        self.line_v_spacing = ((self.XEND - self.XBEGIN) / (self.num_v_lines-1))/2 
+        self.line_v_spacing = ((self.XEND - self.XBEGIN) / (self.num_v_lines-1)) 
         
         self.TRACKS_WIDTH = RESOLUTION_X * 9 / 10
         self.TRACKS_HEIGHT = RESOLUTION_Y / 3
@@ -132,7 +132,14 @@ class Game:
 
         # NOTE LOGIC AND RENDERING
         for note in self.notes:
-            note.update(self)
+            score_delta = note.update(self)  
+            self.score += score_delta
+            if score_delta > 0:
+                self.streak += 1
+            elif score_delta < 0:
+                if self.streak > 0:
+                    self.streak = 1
+                self.streak -= 1           
             note.render(self)
 
         self.notes = [note for note in self.notes if note.alive]

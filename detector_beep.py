@@ -32,7 +32,7 @@ class Line_input:
             print("ERROR")
             return 1
         dist = abs(note.x - self.x)*RESOLUTION_X
-        if dist < game.line_v_spacing:
+        if dist < game.line_v_spacing/2:
             note.alive = False
             if dist < game.line_v_spacing/8:
                 game.draw_text_perfect()
@@ -40,8 +40,9 @@ class Line_input:
             elif dist < game.line_v_spacing/4:
                 game.draw_text_good()
                 return 250
-            game.draw_text_ok()
-            return 125
+            elif dist < game.line_v_spacing/2:
+                game.draw_text_ok()
+                return 125
         else:
             game.draw_text_bad()
             return -200
@@ -74,11 +75,12 @@ class Beat:
             self.x += self.dx
         else:
             self.x += self.dx * (self.size / self.constant_size) / 1.5
-            self.size = self.size * 96 / 100
-            if self.size < 0.5:
+            self.size = self.size * 90 / 100
+            if self.size < 5:
                 print("note died")
                 self.alive = False
-        return
+                return -200
+        return 0
 
 import time
 
