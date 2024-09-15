@@ -15,6 +15,8 @@ class Game:
         self.tick_rate = 60
         self.speed = 2.0 #beats per second
 
+        self.score = 0
+
         pygame.mixer.init()
 
         self.background_colour = (234, 212, 252) 
