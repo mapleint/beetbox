@@ -20,9 +20,6 @@ history = []
 
 MAX_HISTORY = 44100 * 10
 
-
-
-
 def to_ss(*coords : tuple[int, int]) -> tuple[int, int]:
     return coords[0] * RESOLUTION_X, coords[1] * RESOLUTION_Y
 
@@ -35,9 +32,9 @@ TRACKS = 4
 
 RED = (255, 0, 0)
 
-GREEN = (0, 0, 255)
+GREEN = (0, 255, 0)
 
-BLUE = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 YELLOW = (255, 255, 0)
 
@@ -106,16 +103,16 @@ def board_render():
         pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
     
 class Line_input:
-    size = RESOLUTION_Y / 50
+    size = RESOLUTION_Y / 40
     def __init__(self, track : int):
         self.track = track
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = FALLOFF
         self.size = Line_input.size
-        self.color = (255, 255, 255)
+        self.color = track_colors[track]
 
     def render(self):
-        pygame.draw.circle(display, self.color, to_ss(self.x, self.y), self.size, 0)
+        pygame.draw.circle(display, self.color, to_ss(self.x, self.y), self.size, int(self.size/3))
         return
 
     def update(self):
@@ -128,7 +125,7 @@ class Line_input:
         if not notes_in_lane:
             return
         note = notes_in_lane[0]
-        if abs(note.x - self.x) < .1:
+        if abs(note.x - self.x) < .03:
             note.alive = False
             print("hit")
         else:
@@ -188,7 +185,7 @@ notes = [Beat(i) for i in range(4)]
 import time
 
 cooldown = 90
-tick_rate=60
+tick_rate = 60
 min_dt = 1 / tick_rate
 fc = 0
 
@@ -215,7 +212,7 @@ class floating_text:
         self.y -= 1.5
         if time.time() > self.end:
             self.alive = False
-        pass
+
     def render(self):
         alpha_surf = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
         progress = self.progress ** 3
@@ -234,11 +231,12 @@ texts : list[floating_text] = []
 
 def draw_text(jkk):
     texts.append(floating_text("Perfect!", RED, 1, 100))
-    
+
 
 notes = [Beat(i) for i in range(4)]
 
 import time
+import random
 
 previous = time.time()
 
@@ -248,6 +246,9 @@ try:
     recorder.start()
 
     while True:
+        if random.random() < .02:
+            rint = random.randint(0, 3)
+            notes.append(Beat(rint))
 
         # TIME FPS
         fc += 1
