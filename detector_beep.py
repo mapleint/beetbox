@@ -49,7 +49,7 @@ class Line_input:
             return -200
 
 class Beat:
-    def __init__(self, game, track : int, speed, tick_rate):
+    def __init__(self, game, track : int, speed, tick_rate, previous):
         # in game coords are not resolution based
         self.track = track
         self.y = game.track_pos[track] / RESOLUTION_Y
@@ -57,6 +57,7 @@ class Beat:
         self.size = RESOLUTION_Y / 50
         self.x = 1 + self.size / RESOLUTION_X
         line_v_spacing = (game.XEND - game.XBEGIN)/(game.num_v_lines-1)
+        print(line_v_spacing, game.num_v_lines)
         pixel_speed = speed * line_v_spacing #pixel speed per second
         window_speed = pixel_speed / RESOLUTION_X #window speed per second
         window_speed_tick = window_speed / tick_rate #window speed per tick
@@ -64,6 +65,7 @@ class Beat:
         self.color = game.track_colors[track]
         self.muted_color = [int(amp * .9) for amp in self.color]
         self.alive = True
+        self.previous = previous
         return
 
     def render(self, game):
@@ -73,12 +75,16 @@ class Beat:
 
     def update(self, game):
         if self.x > game.FALLOFF - self.size / RESOLUTION_X:
-            self.x += self.dx
+            # self.x += self.dx
+            time_diff = time.time() - self.previous
+            print(time_diff)
+            print(game.pixel_speed)
+            self.x = (game.XEND - (time_diff) * game.pixel_speed)/RESOLUTION_X
+            # print(self.x)
         else:
             self.x += self.dx * (self.size / self.constant_size) / 1.5
             self.size = self.size * 90 / 100
             if self.size < 5:
-                print("note died")
                 self.alive = False
                 game.draw_text_bad()
                 return -200
