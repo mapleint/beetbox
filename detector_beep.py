@@ -178,7 +178,7 @@ import time
 
 previous = time.time()
 
-rhythm1 = Rhythm(60, 16, [(0,),(),(),(),(0,),(),(1,),(),(0,),(),(),(),(0,),(),(1,),(),])
+rhythm1 = Rhythm(60, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5)])
 
 try:
     recorder.start()
