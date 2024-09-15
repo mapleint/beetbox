@@ -50,11 +50,16 @@ track_colors : list[tuple[int, int, int]] = [
 track_pos : list[int] = []
 
 FALLOFF = 1/10
+
+width, height = RESOLUTION_X, RESOLUTION_Y
+XBEGIN = RESOLUTION_X * FALLOFF
+XEND = RESOLUTION_X
+num_v_lines = 10
+
+line_v_spacing = (XEND - XBEGIN)/(num_v_lines-1)
+
 def board_render():
-    # Set the dimensions of the image
-    width, height = RESOLUTION_X, RESOLUTION_Y
-    XBEGIN = RESOLUTION_X * FALLOFF
-    XEND = RESOLUTION_X
+    # Set the dimensions of the image 
 
     # Define the color (black in this case)
     black = (0, 0, 0,)  # RGBA format
@@ -72,13 +77,13 @@ def board_render():
     
     YBEGIN = (0 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
     YEND = (num_h_lines-1 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
-    num_v_lines = 10
 
     for i in range(0, num_v_lines):
         line_spacing = (XEND - XBEGIN)/(num_v_lines-1)
         x_value = XBEGIN + i*line_spacing
         pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND))
     
+speed = 1 #line speed per second
 
 class Beat:
     size = 22
@@ -86,7 +91,11 @@ class Beat:
         # in game coords are not resolution based
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
-        self.dx = - 1 / (time * 600)
+        pixel_speed = speed * line_v_spacing #pixel speed per second
+        window_speed = pixel_speed / RESOLUTION_X #window speed per second
+        print(pixel_speed)
+        print(RESOLUTION_X)
+        self.dx = - 1 / (time * 6)
         self.color = track_colors[track]
         self.muted_color = [int(amp * .9) for amp in self.color]
         print(self.muted_color)
