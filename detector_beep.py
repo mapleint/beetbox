@@ -63,9 +63,16 @@ def board_render():
 
     # Define the color (black in this case)
     black = (0, 0, 0,)  # RGBA format
+    gray1 = (90, 90, 90,)
+    gray2 = (150, 150, 150,)
+
+    width0 = 5
+    width1 = 7
+    width2 = 3
+    width3 = 1
 
     # Calculate the spacing between lines
-    line_spacing = height // 20
+    line_spacing = height // 15
 
     # Draw four horizontal lines on the surface
     num_h_lines = 5
@@ -73,7 +80,7 @@ def board_render():
     for i in range(0, num_h_lines):
         y_value = (i - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
         track_pos.append(y_value + line_spacing / 2)
-        pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value))
+        pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value), width0)
     
     YBEGIN = (0 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
     YEND = (num_h_lines-1 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
@@ -81,7 +88,21 @@ def board_render():
     for i in range(0, num_v_lines):
         line_spacing = (XEND - XBEGIN)/(num_v_lines-1)
         x_value = XBEGIN + i*line_spacing
-        pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND))
+        pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND), width1)
+
+    num_v2_lines = num_v_lines - 1
+    
+    for i in range(0, num_v2_lines):
+        line_spacing = (XEND - XBEGIN) / (num_v_lines-1)
+        x_value = XBEGIN + 1/2*line_spacing + i*line_spacing
+        pygame.draw.line(display, gray1, (x_value, YBEGIN), (x_value, YEND), width2)
+    
+    num_v3_lines = 2*num_v2_lines
+
+    for i in range(0, num_v3_lines):
+        line_spacing = ((XEND - XBEGIN) / (num_v_lines-1))/2
+        x_value = XBEGIN + 1/2*line_spacing + i*line_spacing
+        pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
     
 class Line_input:
     size = RESOLUTION_Y / 50
