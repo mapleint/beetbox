@@ -43,7 +43,7 @@ class Game:
         self.TRACKS_HEIGHT = RESOLUTION_Y / 3
         self.TRACKS = 4
 
-        self.score_text = Text("Score: 0", (0, 0, 0), (.6, .6))
+        self.score_text = Text("Score: 0", (0, 0, 0), (.1, .6), False, 42)
 
         self.RED = (255, 0, 0)
 
