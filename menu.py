@@ -99,7 +99,6 @@ main_menu = Menu([])
 import shared
 import time
 def menu(status = None, inp = None, lock = None):
-    print("hi")
     if status:
         input_method.input = inp
         input_method.lock = lock

@@ -275,24 +275,22 @@ class Game:
 
         total_ticks = 0
 
-        previous = time.time()
-        fc = 0
-        min_dt = 1 / self.tick_rate
+        start = time.time()
+        
         tick_stopper = 0
-
+        clock = pygame.time.Clock()
         count = 0
+        i = 0
         while True:
             # TIME FPS
-            fc += 1
-            now = time.time()
-            if now - previous > 1:
-                previous = now
-                print(f"fps: {fc}")
-                fc = 0
-
+            clock.tick(60)
+            fps = clock.get_fps()
+            if i % 8 == 0:
+                print(fps)
             if count == rhythm.delay:
                 pygame.mixer.music.load(rhythm.music_path) 
                 pygame.mixer.music.play(-1)
+    
             self.tick()
 
             if len(rhythm.track) > 0:
@@ -305,10 +303,6 @@ class Game:
             
             if tick_stopper/self.tick_rate*self.speed > 11:
                 break
-
-            delta = time.time() - now
-            if min_dt - delta > 0:
-                time.sleep(min_dt - delta)
 
             total_ticks += 1
             count += 1

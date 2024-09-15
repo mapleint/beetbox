@@ -57,7 +57,6 @@ class Beat:
         self.size = RESOLUTION_Y / 50
         self.x = 1 + self.size / RESOLUTION_X
         line_v_spacing = (game.XEND - game.XBEGIN)/(game.num_v_lines-1)
-        print(line_v_spacing, game.num_v_lines)
         pixel_speed = speed * line_v_spacing #pixel speed per second
         window_speed = pixel_speed / RESOLUTION_X #window speed per second
         window_speed_tick = window_speed / tick_rate #window speed per tick
@@ -77,8 +76,6 @@ class Beat:
         if self.x > game.FALLOFF - self.size / RESOLUTION_X:
             # self.x += self.dx
             time_diff = time.time() - self.previous
-            print(time_diff)
-            print(game.pixel_speed)
             self.x = (game.XEND - (time_diff) * game.pixel_speed)/RESOLUTION_X
             # print(self.x)
         else:
