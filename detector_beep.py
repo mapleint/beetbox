@@ -82,8 +82,9 @@ def board_render():
 class Line_input:
     size = RESOLUTION_Y / 50
     def __init__(self, track : int):
+        self.track = track
         self.y = track_pos[track] / RESOLUTION_Y
-        self.x = FALLOFF + 2/50
+        self.x = FALLOFF
         self.size = Line_input.size
         self.color = (255, 255, 255)
 
@@ -95,14 +96,24 @@ class Line_input:
         self.size = self.size - (self.size - Line_input.size) * .05
 
     def pressed(self):
-        print("pressed")
         self.size = Line_input.size * 1.3
+        notes_in_lane = [note for note in notes if note.track == self.track]
+        notes_in_lane.sort(key = lambda note: abs(self.x - note.x))
+        if not notes_in_lane:
+            return
+        note = notes_in_lane[0]
+        if abs(note.x - self.x) < .1:
+            note.alive = False
+            print("hit")
+        else:
+            print('missed')
 
 
 class Beat:
     size = RESOLUTION_Y / 50
     def __init__(self, track : int, time : int = 2):
         # in game coords are not resolution based
+        self.track = track
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
         self.dx = - 1 / (time * 600)
@@ -136,7 +147,7 @@ pygame.display.flip()
 
 lanes = [Line_input(i) for i in range(4)]
 
-notes = [Beat(i, 1) for i in range(4)]
+notes = [Beat(i, .3) for i in range(4)]
 
 import time
 
@@ -145,8 +156,48 @@ tick_rate=60
 min_dt = 1 / tick_rate
 fc = 0
 
+import math
+
+pygame.font.init()
+comic_sans = pygame.font.SysFont('Comic Sans MS', 32)
+
+class floating_text:
+    def __init__(self, text, color, fade_speed, size):
+        self.text = text
+        self.color = color
+        self.size = size
+        self.start = time.time()
+        self.end = self.start + fade_speed
+        self.alive = True
+        self.x = 200
+        self.y = 200
+        self.surface = comic_sans.render(self.text, True, self.color)
+        self.progress = 0
+
+    def update(self):
+        self.progress = (time.time() - self.start) / (self.end - self.start)
+        self.y -= 1.5
+        if time.time() > self.end:
+            self.alive = False
+        pass
+    def render(self):
+        alpha_surf = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
+        progress = self.progress ** 3
+        progress = max(min(1, progress), 0)
+        progress = 1 - progress
+
+        alpha_surf.fill((255, 255, 255, int(255 * progress)))
+        txt = self.surface.copy()
+        txt.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        display.blit(txt, (self.x, self.y))
+        pass
 
 previous = time.time()
+
+texts : list[floating_text] = []
+
+def draw_text(jkk):
+    texts.append(floating_text("Perfect!", RED, 1, 100))
 
 try:
     recorder.start()
@@ -166,16 +217,24 @@ try:
         display.fill(background_colour)
         board_render()
 
-        # NOTE LOGIC AND RENDERING
-        for note in notes:
-            note.update()
-            note.render()
-        notes = [note for note in notes if note.alive]
+        for text in texts:
+            text.update()
+            text.render()
+        text = [text for text in texts if text.alive]
+
 
         # INPUT AND RENDERING
         for lane in lanes:
             lane.update()
             lane.render()
+
+        # NOTE LOGIC AND RENDERING
+        for note in notes:
+            note.update()
+            note.render()
+
+        notes = [note for note in notes if note.alive]
+
 
         pygame.display.update()
 
