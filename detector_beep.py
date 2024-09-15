@@ -68,11 +68,14 @@ def board_render():
         y_value = (i - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
         pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value))
     
+    YBEGIN = (0 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
+    YEND = (num_h_lines-1 - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
     num_v_lines = 10
 
     for i in range(0, num_v_lines):
         line_spacing = (XEND - XBEGIN)/(num_v_lines-1)
         x_value = XBEGIN + i*line_spacing
+        pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND))
     
 
 class Beat:
