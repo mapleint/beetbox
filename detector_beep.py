@@ -83,22 +83,45 @@ def board_render():
         x_value = XBEGIN + i*line_spacing
         pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND))
     
-speed = 1 #line speed per second
+class Line_input:
+    size = RESOLUTION_Y / 50
+    def __init__(self, track : int):
+        self.y = track_pos[track] / RESOLUTION_Y
+        self.x = FALLOFF + 2/50
+        self.size = Line_input.size
+        self.color = (255, 255, 255)
+
+    def render(self):
+        pygame.draw.circle(display, self.color, to_ss(self.x, self.y), self.size, 0)
+        return
+
+    def update(self):
+        self.size = self.size - (self.size - Line_input.size) * .05
+
+    def pressed(self):
+        print("pressed")
+        self.size = Line_input.size * 1.3
+
+
+cooldown = 90
+tick_rate=60
+min_dt = 1 / tick_rate
+fc = 0
+
+speed = 2 #line speed per second
 
 class Beat:
-    size = 22
+    size = RESOLUTION_Y / 50
     def __init__(self, track : int, time : int = 2):
         # in game coords are not resolution based
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
         pixel_speed = speed * line_v_spacing #pixel speed per second
         window_speed = pixel_speed / RESOLUTION_X #window speed per second
-        print(pixel_speed)
-        print(RESOLUTION_X)
-        self.dx = - 1 / (time * 6)
+        window_speed_tick = window_speed / tick_rate #window speed per tick
+        self.dx = - window_speed_tick
         self.color = track_colors[track]
         self.muted_color = [int(amp * .9) for amp in self.color]
-        print(self.muted_color)
         self.size = Beat.size
         self.alive = True
         return
@@ -109,11 +132,11 @@ class Beat:
         return
 
     def update(self):
-        if self.x > FALLOFF:
+        if self.x > FALLOFF - Beat.size / RESOLUTION_X:
             self.x += self.dx
         else:
             self.x += self.dx * (self.size / Beat.size) / 1.5
-            self.size = self.size * 95 / 100
+            self.size = self.size * 96 / 100
             if self.size < 0.5:
                 print("note died")
                 self.alive = False
@@ -125,19 +148,20 @@ board_render()
 pygame.display.flip() 
 
 
+lanes = [Line_input(i) for i in range(4)]
+
 notes = [Beat(i, 1) for i in range(4)]
 
 import time
-cooldown = 90
 
-fc = 0
 previous = time.time()
+
 try:
     recorder.start()
 
     while True:
 
-        # 
+        # TIME FPS
         fc += 1
         now = time.time()
         if now - previous > 1:
@@ -145,12 +169,21 @@ try:
             print(f"fps: {fc}")
             fc = 0
 
+
+        # RENDER
         display.fill(background_colour)
         board_render()
+
+        # NOTE LOGIC AND RENDERING
         for note in notes:
             note.update()
             note.render()
         notes = [note for note in notes if note.alive]
+
+        # INPUT AND RENDERING
+        for lane in lanes:
+            lane.update()
+            lane.render()
 
         pygame.display.update()
 
@@ -160,18 +193,24 @@ try:
         if len(history) > MAX_HISTORY:
             history = history[64:]
 
-        peaks = detect_peaks(history, mph=12000, mpd=256)
-        if cooldown > 0:
-            cooldown -= 1
-        if cooldown == 0 and len(peaks) and max(peaks) >  len(history) - 64:
-            #kicksound.play()
-            cooldown = 60
-
         for event in pygame.event.get():
+            # INPUT HANDLING
+            if event.type == pygame.KEYDOWN:
+                keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 
+                for i, key in enumerate(keys):
+                    if event.key == key:
+                        lanes[i].pressed()
+                
+            
             if event.type == pygame.QUIT:
                 recorder.stop()
                 pygame.quit()
                 exit()
+
+        delta = time.time() - now
+        if min_dt - delta > 0:
+            time.sleep(min_dt - delta)
+
 except KeyboardInterrupt:
     recorder.stop()
 finally:
