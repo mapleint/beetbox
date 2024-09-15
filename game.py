@@ -64,8 +64,7 @@ class INPUT:
 
 class KEY_INPUT(INPUT):
     def __init__(self, inp, lock):
-        self.input = inp
-        self.lock = lock
+        pass
     def get_input(self):
         events = pygame.event.get()
         keys = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f] 

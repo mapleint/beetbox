@@ -1,4 +1,5 @@
 import pygame
+import pygame.examples
 from display import display
 from render import Text
 
@@ -97,21 +98,26 @@ main_menu = Menu([])
 
 import shared
 import time
-def menu(status, inp, lock):
-    input_method.input = inp
-    input_method.lock = lock
-
-    calibration_text = Text("Calibrate Microphone (beatbox into your microphone)", (255, 255, 255), center=True)
-    while status.value == shared.CALIBRATION:
-        calibration_text.render()
-        pygame.display.update()
-        time.sleep(1/30)
-
-    def quit():
-        with lock:
-            status.value = shared.QUIT
-        pygame.quit()
-        exit(0)
+def menu(status = None, inp = None, lock = None):
+    print("hi")
+    if status:
+        input_method.input = inp
+        input_method.lock = lock
+        calibration_text = Text("Calibrate Microphone (beatbox into your microphone)", (255, 255, 255), center=True)
+        while status.value == shared.CALIBRATION:
+            calibration_text.render()
+            pygame.display.update()
+            time.sleep(1/30)
+        def quit():
+            with lock:
+                status.value = shared.QUIT
+            pygame.quit()
+            exit(0)
+    else:
+        def quit():
+            pygame.quit()
+            exit(0)
+        input_method.get_input = game.KEY_INPUT(None, None).get_input
 
     global main_menu
     main_menu = Menu([
@@ -121,7 +127,12 @@ def menu(status, inp, lock):
     global selected
     selected = main_menu
 
-    while status != shared.QUIT:
+    def run_status():
+        if status:
+            return status.value
+        return 1
+
+    while run_status() != shared.QUIT:
         display.fill(background_color)
         if selected is main_menu:
             title.render()
