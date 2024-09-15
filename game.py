@@ -52,6 +52,7 @@ class Game:
         self.TRACKS = 4
 
         self.score_text = Text("Score: 0", (0, 0, 0), (.1, .6), False, 42)
+        self.streak_text = Text("Streak: 0", (0, 0, 0), (.1, .65), False, 42)
 
         self.RED = (255, 0, 0)
 
@@ -119,7 +120,9 @@ class Game:
         display.fill(self.background_colour)
         self.board_render()
         self.score_text.update_text(f"Score: {self.score}")
+        self.streak_text.update_text(f"Streak: {self.streak}")
         self.score_text.render()
+        self.streak_text.render()
         for text in self.texts:
             text.update()
             text.render()
@@ -178,6 +181,7 @@ class Game:
         return coords[0] * RESOLUTION_X, coords[1] * RESOLUTION_Y
 
     def start_game(self, rhythm : Rhythm):
+        rhythm.reset()
         display.fill(self.background_colour)
         self.board_render()
 
@@ -217,12 +221,5 @@ class Game:
 
             total_ticks += 1
 
-    def menu(self):
-
-        pass
-
 
 rhythm1 = Rhythm(60, 4, [(0,0),(0,1),(1,1.5), (0,2),(0,3),(1,3.5), (0, 4)])
-
-game = Game()
-game.start_game(rhythm1)

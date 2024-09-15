@@ -49,9 +49,32 @@ GREEN = COLORS["green"]
 
 main_menu : Menu
 
-songs_menu = Menu([
-    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+last_rhythm = None
+last_score = 0
 
+game_over_text = Text("GAME OVER!", pygame.color.THECOLORS["red"], (.5, .3), True, size=64)
+
+def nothing():
+    pass
+
+Option(game_over_text, nothing),
+
+import game
+def start_game(rhythm):
+    level = game.Game()
+    level.start_game(rhythm)
+    global last_score, last_rhythm
+    last_score = level.score
+    last_rhythm = rhythm
+    if last_score >= 0:
+        game_over_text.update_text(f"WINNER!! score: {last_score}")
+    else:
+        game_over_text.update_text("GAME OVER!")
+    change_menu(game_over)
+
+songs_menu = Menu([
+    Option(Text("rhytm1", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(game.rhythm1)),
+    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
 ])
 
 main_menu = Menu([
@@ -59,10 +82,18 @@ main_menu = Menu([
     Option(Text("QUIT", pygame.color.THECOLORS["blue"], (.5, .55), center=True), quit),
 ])
 
+ 
+
+game_over = Menu([
+    Option(game_over_text, nothing),
+    Option(Text("RETRY", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(last_rhythm)),
+    Option(Text("MAIN MENU", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+])
 
 selected = main_menu
 
 title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
+
 
 def quit():
     pygame.quit()
