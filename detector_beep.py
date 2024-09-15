@@ -32,21 +32,22 @@ class Line_input:
         if not note.alive:
             print("ERROR")
             return 1
-        dist = abs(note.x - self.x)
-        if dist < game.line_spacing/2:
+        dist = abs(note.x - self.x)*RESOLUTION_X
+        if dist < game.line_v_spacing/2:
             note.alive = False
             print("hit")
-            if dist < game.line_spacing/8:
+            if dist < game.line_v_spacing/8:
                 game.draw_text_perfect()
                 return 500
-            elif dist < game.line_spacing/4:
+            elif dist < game.line_v_spacing/4:
                 game.draw_text_good()
                 return 250
-            elif dist < game.line_spacing/2:
+            elif dist < game.line_v_spacing/2:
                 game.draw_text_ok()
                 return 125
         else:
             print('missed')
+            return -200
 
 class Beat:
     def __init__(self, game, track : int, speed, tick_rate):
