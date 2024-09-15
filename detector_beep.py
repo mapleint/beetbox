@@ -47,6 +47,7 @@ track_colors : list[tuple[int, int, int]] = [
     YELLOW,
 ]
 
+track_pos : list[int] = []
 
 FALLOFF = 1/10
 def board_render():
@@ -66,6 +67,7 @@ def board_render():
 
     for i in range(0, num_h_lines):
         y_value = (i - num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
+        track_pos.append(y_value + line_spacing / 2)
         pygame.draw.line(display, black, (XBEGIN, y_value), (XEND, y_value))
     
     num_v_lines = 10
@@ -76,18 +78,22 @@ def board_render():
     
 
 class Beat:
-    size = 30
+    size = 22
     def __init__(self, track : int, time : int = 2):
         # in game coords are not resolution based
-        self.y = 1 / 2
+        self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
         self.dx = - 1 / (time * 600)
         self.color = track_colors[track]
+        self.muted_color = [int(amp * .9) for amp in self.color]
+        print(self.muted_color)
         self.size = Beat.size
+        self.alive = True
         return
 
     def render(self):
         pygame.draw.circle(display, self.color, to_ss(self.x, self.y), self.size, 0)
+        pygame.draw.circle(display, self.muted_color, to_ss(self.x, self.y), self.size * .8, 0)
         return
 
     def update(self):
@@ -96,6 +102,9 @@ class Beat:
         else:
             self.x += self.dx * (self.size / Beat.size) / 1.5
             self.size = self.size * 95 / 100
+            if self.size < 0.5:
+                print("note died")
+                self.alive = False
         return
 
 display.fill(background_colour)
@@ -103,9 +112,9 @@ board_render()
 
 pygame.display.flip() 
 
-note = Beat(0, 1)
 
-notes = [note]
+notes = [Beat(i, 1) for i in range(4)]
+
 import time
 cooldown = 90
 
@@ -121,7 +130,7 @@ try:
         now = time.time()
         if now - previous > 1:
             previous = now
-            #print(f"fps: {fc}")
+            print(f"fps: {fc}")
             fc = 0
 
         display.fill(background_colour)
@@ -129,6 +138,7 @@ try:
         for note in notes:
             note.update()
             note.render()
+        notes = [note for note in notes if note.alive]
 
         pygame.display.update()
 
