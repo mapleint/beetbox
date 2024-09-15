@@ -1,6 +1,7 @@
 import pygame
 from pvrecorder import PvRecorder
 from detect_peaks import detect_peaks
+from rhythm import Rhythm
 
 pygame.mixer.init()
 
@@ -133,7 +134,7 @@ speed = 2 #line speed per second
 
 class Beat:
     size = RESOLUTION_Y / 50
-    def __init__(self, track : int, time : int = 2):
+    def __init__(self, track : int):
         # in game coords are not resolution based
         self.y = track_pos[track] / RESOLUTION_Y
         self.x = 1 + self.size / RESOLUTION_X
@@ -171,11 +172,13 @@ pygame.display.flip()
 
 lanes = [Line_input(i) for i in range(4)]
 
-notes = [Beat(i, 1) for i in range(4)]
+notes = [Beat(i) for i in range(4)]
 
 import time
 
 previous = time.time()
+
+rhythm1 = Rhythm(60, 16, [(0,),(),(),(),(0,),(),(1,),(),(0,),(),(),(),(0,),(),(1,),(),])
 
 try:
     recorder.start()
