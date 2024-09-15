@@ -25,6 +25,7 @@ class Line_input:
         notes_in_lane = [note for note in game.notes if note.track == self.track]
         notes_in_lane.sort(key = lambda note: abs(self.x - note.x))
         if not notes_in_lane:
+            game.draw_text_bad()
             return -200
         note = notes_in_lane[0]
         if not note.alive:
