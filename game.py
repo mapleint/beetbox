@@ -8,6 +8,14 @@ import random
 from display import RESOLUTION, RESOLUTION_X, RESOLUTION_Y, display
 from render import Text
 
+bad_words = [
+    "miss",
+    "bad",
+    "rhytmless",
+    "trash",
+    "not good",
+]
+
 class Game:
     def __init__(self):
         self.tick_rate = 60
@@ -164,7 +172,7 @@ class Game:
     def draw_text_ok(self):
         self.texts.append(floating_text("ok", (150, 150, 150), 1, 32))
     def draw_text_bad(self):
-        self.texts.append(floating_text("bad", self.RED, 1, 32))
+        self.texts.append(floating_text(random.choice(bad_words), self.RED, 1, 32))
 
     def to_ss(self, *coords : tuple[int, int]) -> tuple[int, int]:
         return coords[0] * RESOLUTION_X, coords[1] * RESOLUTION_Y
