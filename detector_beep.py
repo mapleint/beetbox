@@ -79,6 +79,7 @@ class Beat:
             if self.size < 5:
                 print("note died")
                 self.alive = False
+                game.draw_text_bad()
                 return -200
         return 0
 
