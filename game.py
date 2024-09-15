@@ -6,6 +6,8 @@ from pvrecorder import PvRecorder
 import time
 import random
 
+from display import RESOLUTION, RESOLUTION_X, RESOLUTION_Y, display
+from render import Text
 
 class Game:
     def __init__(self):
@@ -18,12 +20,6 @@ class Game:
         pygame.mixer.init()
 
         self.background_colour = (234, 212, 252) 
-        RESOLUTION = (1920, 1080)
-        self.RESOLUTION_X, self.RESOLUTION_Y = RESOLUTION
-
-        self.display = pygame.display.set_mode(RESOLUTION)
-        
-        pygame.display.set_caption(f'Beetbox @{self.RESOLUTION_X}x{self.RESOLUTION_Y}')
 
         self.recorder = PvRecorder(device_index=-1, frame_length=64)
 
@@ -31,22 +27,24 @@ class Game:
  
         self.num_v_lines = 10
         self.num_h_lines = 5
-        self.line_spacing = self.RESOLUTION_Y // 15
+        self.line_spacing = RESOLUTION_Y // 15
 
         for i in range(0, self.num_h_lines):
-            y_value = (i - self.num_h_lines / 2.0) * self.line_spacing + self.RESOLUTION_Y//2
+            y_value = (i - self.num_h_lines / 2.0) * self.line_spacing + RESOLUTION_Y//2
             self.track_pos.append(y_value + self.line_spacing / 2) 
 
         self.FALLOFF = 1/10
         self.texts : list[floating_text] = []
 
-        self.width, self.height = self.RESOLUTION_X, self.RESOLUTION_Y
-        self.XBEGIN = self.RESOLUTION_X * self.FALLOFF
-        self.XEND = self.RESOLUTION_X 
+        self.width, self.height = RESOLUTION_X, RESOLUTION_Y
+        self.XBEGIN = RESOLUTION_X * self.FALLOFF
+        self.XEND = RESOLUTION_X 
         
-        self.TRACKS_WIDTH = self.RESOLUTION_X * 9 / 10
-        self.TRACKS_HEIGHT = self.RESOLUTION_Y / 3
+        self.TRACKS_WIDTH = RESOLUTION_X * 9 / 10
+        self.TRACKS_HEIGHT = RESOLUTION_Y / 3
         self.TRACKS = 4
+
+        self.score_text = Text("Score: 0", (0, 0, 0), (.6, .6))
 
         self.RED = (255, 0, 0)
 
@@ -84,37 +82,38 @@ class Game:
         line_spacing = self.height // 15
 
         for i in range(0, self.num_h_lines):
-            y_value = (i - self.num_h_lines / 2.0) * line_spacing + self.RESOLUTION_Y//2
-            pygame.draw.line(self.display, black, (self.XBEGIN, y_value), (self.XEND, y_value), width0)
+            y_value = (i - self.num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
+            pygame.draw.line(display, black, (self.XBEGIN, y_value), (self.XEND, y_value), width0)
         
-        YBEGIN = (0 - self.num_h_lines / 2.0) * line_spacing + self.RESOLUTION_Y//2
-        YEND = (self.num_h_lines-1 - self.num_h_lines / 2.0) * line_spacing + self.RESOLUTION_Y//2
+        YBEGIN = (0 - self.num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
+        YEND = (self.num_h_lines-1 - self.num_h_lines / 2.0) * line_spacing + RESOLUTION_Y//2
 
         for i in range(0, self.num_v_lines):
             line_spacing = (self.XEND - self.XBEGIN)/(self.num_v_lines-1)
             x_value = self.XBEGIN + i*line_spacing
-            pygame.draw.line(self.display, black, (x_value, YBEGIN), (x_value, YEND), width1)
+            pygame.draw.line(display, black, (x_value, YBEGIN), (x_value, YEND), width1)
 
         num_v2_lines = self.num_v_lines - 1
         
         for i in range(0, num_v2_lines):
             line_spacing = (self.XEND - self.XBEGIN) / (self.num_v_lines-1)
             x_value = self.XBEGIN + 1/2*line_spacing + i*line_spacing
-            pygame.draw.line(self.display, gray1, (x_value, YBEGIN), (x_value, YEND), width2)
+            pygame.draw.line(display, gray1, (x_value, YBEGIN), (x_value, YEND), width2)
         
         num_v3_lines = 2*num_v2_lines
 
         for i in range(0, num_v3_lines):
             line_spacing = ((self.XEND - self.XBEGIN) / (self.num_v_lines-1))/2
             x_value = self.XBEGIN + 1/2*line_spacing + i*line_spacing
-            pygame.draw.line(self.display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
+            pygame.draw.line(display, gray2, (x_value, YBEGIN), (x_value, YEND), width3)
  
     def tick(self):
         self.recorder.start()
         # RENDER
-        self.display.fill(self.background_colour)
+        display.fill(self.background_colour)
         self.board_render()
-
+        self.score_text.update_text(f"Score: {self.score}")
+        self.score_text.render()
         for text in self.texts:
             text.update()
             text.render(self)
@@ -161,10 +160,10 @@ class Game:
         self.texts.append(floating_text("ok", self.RED, 1, 100))
 
     def to_ss(self, *coords : tuple[int, int]) -> tuple[int, int]:
-        return coords[0] * self.RESOLUTION_X, coords[1] * self.RESOLUTION_Y
+        return coords[0] * RESOLUTION_X, coords[1] * RESOLUTION_Y
 
     def start_game(self, rhythm : Rhythm):
-        self.display.fill(self.background_colour)
+        display.fill(self.background_colour)
         self.board_render()
 
         self.speed = rhythm.bpm/60.0

@@ -2,20 +2,21 @@ import pygame
 from pvrecorder import PvRecorder
 from detect_peaks import detect_peaks
 from rhythm import Rhythm
+from display import RESOLUTION, RESOLUTION_Y, RESOLUTION_X, display
 
 #inner third should be 
     
 class Line_input:
     def __init__(self, game, track : int):
         self.track = track
-        self.y = game.track_pos[track] / game.RESOLUTION_Y
+        self.y = game.track_pos[track] / RESOLUTION_Y
         self.x = game.FALLOFF
-        self.constant_size = game.RESOLUTION_Y / 40
-        self.size = game.RESOLUTION_Y / 40
+        self.constant_size = RESOLUTION_Y / 40
+        self.size = RESOLUTION_Y / 40
         self.color = game.track_colors[track]
 
     def render(self, game):
-        pygame.draw.circle(game.display, self.color, game.to_ss(self.x, self.y), self.size, int(self.size/3))
+        pygame.draw.circle(display, self.color, game.to_ss(self.x, self.y), self.size, int(self.size/3))
         return
 
     def update(self):
@@ -51,13 +52,13 @@ class Beat:
     def __init__(self, game, track : int, speed, tick_rate):
         # in game coords are not resolution based
         self.track = track
-        self.y = game.track_pos[track] / game.RESOLUTION_Y
-        self.constant_size = game.RESOLUTION_Y / 50
-        self.size = game.RESOLUTION_Y / 50
-        self.x = 1 + self.size / game.RESOLUTION_X
+        self.y = game.track_pos[track] / RESOLUTION_Y
+        self.constant_size = RESOLUTION_Y / 50
+        self.size = RESOLUTION_Y / 50
+        self.x = 1 + self.size / RESOLUTION_X
         line_v_spacing = (game.XEND - game.XBEGIN)/(game.num_v_lines-1)
         pixel_speed = speed * line_v_spacing #pixel speed per second
-        window_speed = pixel_speed / game.RESOLUTION_X #window speed per second
+        window_speed = pixel_speed / RESOLUTION_X #window speed per second
         window_speed_tick = window_speed / tick_rate #window speed per tick
         self.dx = - window_speed_tick
         self.color = game.track_colors[track]
@@ -66,12 +67,12 @@ class Beat:
         return
 
     def render(self, game):
-        pygame.draw.circle(game.display, self.color, game.to_ss(self.x, self.y), self.size, 0)
-        pygame.draw.circle(game.display, self.muted_color, game.to_ss(self.x, self.y), self.size * .8, 0)
+        pygame.draw.circle(display, self.color, game.to_ss(self.x, self.y), self.size, 0)
+        pygame.draw.circle(display, self.muted_color, game.to_ss(self.x, self.y), self.size * .8, 0)
         return
 
     def update(self, game):
-        if self.x > game.FALLOFF - self.size / game.RESOLUTION_X:
+        if self.x > game.FALLOFF - self.size / RESOLUTION_X:
             self.x += self.dx
         else:
             self.x += self.dx * (self.size / self.constant_size) / 1.5
@@ -116,5 +117,5 @@ class floating_text:
         alpha_surf.fill((255, 255, 255, int(255 * progress)))
         txt = self.surface.copy()
         txt.blit(alpha_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-        game.display.blit(txt, (self.x, self.y))
+        display.blit(txt, (self.x, self.y))
         pass
