@@ -61,12 +61,18 @@ def nothing():
 
 Option(game_over_text, nothing),
 
-title = Text("BEETBOX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
+title = Text("XTREME BEETB0XX^{tm}", pygame.color.THECOLORS["black"], (.5, .3), True, 92)
+
+header_color = (0, 0, 0)
+song_color = (120, 0, 255)
 
 main_menu : Menu
 songs_menu = Menu([
-    Option(Text("rhytm1", pygame.color.THECOLORS["green"], (.5, .45), True), lambda : start_game(game.rhythm1)),
-    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .55), True), lambda : change_menu(main_menu)),
+    Option(Text("SONG SELECT", header_color, (.5, .25), True), lambda : nothing),
+    Option(Text("rhytm1 (medium)", pygame.color.THECOLORS["blue"], (.5, .35), True), lambda : start_game(game.rhythm1)),
+    Option(Text("rhytm2 (hard)", pygame.color.THECOLORS["red"], (.5, .45), True), lambda : start_game(game.rhythm2)),
+    Option(Text("rhytm3 (sigma)", song_color, (.5, .55), True), lambda : start_game(game.rhythm3)),
+    Option(Text("BACK", pygame.color.THECOLORS["blue"], (.5, .75), True), lambda : change_menu(main_menu)),
 ])
 game_over = Menu([
     Option(game_over_text, nothing),
@@ -130,4 +136,3 @@ def menu(status, inp, lock):
                 selected.click(event.pos[0], event.pos[1])
 
         clock.tick(30)
-    

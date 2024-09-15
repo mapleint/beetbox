@@ -3,7 +3,7 @@ def controls(status, inp, lock):
     from predictor import Predictor
     import numpy as np
     import shared
-    listener = AudioListener()
+    listener = AudioListener(calibration_time=6)
 
     with lock:
         status.value = shared.CALIBRATION
