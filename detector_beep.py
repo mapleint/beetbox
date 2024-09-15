@@ -10,6 +10,7 @@ class Line_input:
         self.track = track
         self.y = game.track_pos[track] / game.RESOLUTION_Y
         self.x = game.FALLOFF
+        self.constant_size = game.RESOLUTION_Y / 40
         self.size = game.RESOLUTION_Y / 40
         self.color = game.track_colors[track]
 
@@ -18,7 +19,7 @@ class Line_input:
         return
 
     def update(self):
-        self.size = self.size - (self.size - self.size) * .05
+        self.size = self.size - (self.size - self.constant_size) * .05
 
     def pressed(self, game):
         self.size = self.size * 1.3
@@ -38,6 +39,7 @@ class Beat:
         # in game coords are not resolution based
         self.track = track
         self.y = game.track_pos[track] / game.RESOLUTION_Y
+        self.constant_size = game.RESOLUTION_Y / 50
         self.size = game.RESOLUTION_Y / 50
         self.x = 1 + self.size / game.RESOLUTION_X
         line_v_spacing = (game.XEND - game.XBEGIN)/(game.num_v_lines-1)
@@ -59,8 +61,8 @@ class Beat:
         if self.x > game.FALLOFF - self.size / game.RESOLUTION_X:
             self.x += self.dx
         else:
-            self.x += self.dx * (self.size / self.size) / 1.5
-            self.size = self.size * 96 / 100
+            self.x += self.dx * (self.size / self.constant_size) / 1.5
+            self.size = self.constant_size * 96 / 100
             if self.size < 0.5:
                 print("note died")
                 self.alive = False
