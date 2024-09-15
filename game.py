@@ -27,11 +27,11 @@ class Game:
  
         self.num_v_lines = 10
         self.num_h_lines = 5
-        self.line_spacing = RESOLUTION_Y // 15
+        self.line_h_spacing = RESOLUTION_Y // 15
 
         for i in range(0, self.num_h_lines):
-            y_value = (i - self.num_h_lines / 2.0) * self.line_spacing + RESOLUTION_Y//2
-            self.track_pos.append(y_value + self.line_spacing / 2) 
+            y_value = (i - self.num_h_lines / 2.0) * self.line_h_spacing + RESOLUTION_Y//2
+            self.track_pos.append(y_value + self.line_h_spacing / 2)
 
         self.FALLOFF = 1/10
         self.texts : list[floating_text] = []
@@ -39,6 +39,8 @@ class Game:
         self.width, self.height = RESOLUTION_X, RESOLUTION_Y
         self.XBEGIN = RESOLUTION_X * self.FALLOFF
         self.XEND = RESOLUTION_X 
+
+        self.line_v_spacing = ((self.XEND - self.XBEGIN) / (self.num_v_lines-1))/2 
         
         self.TRACKS_WIDTH = RESOLUTION_X * 9 / 10
         self.TRACKS_HEIGHT = RESOLUTION_Y / 3
