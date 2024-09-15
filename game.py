@@ -114,7 +114,7 @@ class Game:
         self.score_text.render()
         for text in self.texts:
             text.update()
-            text.render(self)
+            text.render()
         text = [text for text in self.texts if text.alive]
 
         # INPUT AND RENDERING
@@ -158,11 +158,13 @@ class Game:
                 exit()
 
     def draw_text_perfect(self):
-        self.texts.append(floating_text("Perfect!", self.RED, 1, 100))
+        self.texts.append(floating_text("Perfect!", self.GREEN, 2, 128))
     def draw_text_good(self):
-        self.texts.append(floating_text("Good", self.RED, 1, 100))
+        self.texts.append(floating_text("Good", self.BLUE, 1, 64))
     def draw_text_ok(self):
-        self.texts.append(floating_text("ok", self.RED, 1, 100))
+        self.texts.append(floating_text("ok", (150, 150, 150), 1, 32))
+    def draw_text_bad(self):
+        self.texts.append(floating_text("bad", self.RED, 1, 32))
 
     def to_ss(self, *coords : tuple[int, int]) -> tuple[int, int]:
         return coords[0] * RESOLUTION_X, coords[1] * RESOLUTION_Y
@@ -177,7 +179,6 @@ class Game:
 
         previous = time.time()
         fc = 0
-        cooldown = 90
         min_dt = 1 / self.tick_rate
         tick_stopper = 0
 
@@ -187,7 +188,7 @@ class Game:
             now = time.time()
             if now - previous > 1:
                 previous = now
-                print(f"fps: {fc}")
+                #print(f"fps: {fc}")
                 fc = 0
 
             self.tick()
@@ -209,7 +210,7 @@ class Game:
             total_ticks += 1
 
     def menu(self):
-        
+
         pass
 
 

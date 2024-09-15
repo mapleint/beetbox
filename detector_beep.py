@@ -43,6 +43,7 @@ class Line_input:
                 game.draw_text_ok()
                 return 125
         else:
+            game.draw_text_bad()
             return -200
 
 class Beat:
@@ -83,19 +84,17 @@ class Beat:
 import time
 
 pygame.font.init()
-comic_sans = pygame.font.SysFont('Comic Sans MS', 32)
 
 class floating_text:
     def __init__(self, text, color, fade_speed, size):
+        comic_sans = pygame.font.SysFont('Comic Sans MS', size)
         self.text = text
-        self.color = color
-        self.size = size
         self.start = time.time()
         self.end = self.start + fade_speed
         self.alive = True
         self.x = 200
         self.y = 200
-        self.surface = comic_sans.render(self.text, True, self.color)
+        self.surface = comic_sans.render(self.text, True, color)
         self.progress = 0
 
     def update(self):
@@ -104,7 +103,7 @@ class floating_text:
         if time.time() > self.end:
             self.alive = False
 
-    def render(self, game):
+    def render(self):
         alpha_surf = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
         progress = self.progress ** 3
         progress = max(min(1, progress), 0)
